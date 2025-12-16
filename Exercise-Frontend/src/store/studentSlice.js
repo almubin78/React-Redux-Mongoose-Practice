@@ -1,0 +1,46 @@
+import { createSlice } from "@reduxjs/toolkit";
+import { studentsData } from "../datum/studentData/studentData";
+
+const makePresent = (list) => list.map((s) => ({ ...s, present: true }));
+
+const studentSlice = createSlice({
+  name: "students",
+  initialState: {
+    batch: "ssc26",
+    batchStudents: makePresent(studentsData.ssc26),
+    sessionStudents: [],
+  },
+
+  reducers: {
+    // CHANGE BATCH
+    setBatch(state, action) {
+      state.batch = action.payload;
+      state.batchStudents = makePresent(studentsData[action.payload] || []);
+    },
+
+    // UPDATE (toggle / edit)
+    updateStudent(state, action) {
+      const { id, data } = action.payload;
+      const student = state.batchStudents.find((s) => s.id === id);
+      if (student) {
+        Object.assign(student, data);
+      }
+    },
+
+    // DELETE
+    deleteStudent(state, action) {
+      state.batchStudents = state.batchStudents.filter(
+        (s) => s.id !== action.payload
+      );
+    },
+    // add inside reducers
+    startSession(state) {
+      state.sessionStudents = state.batchStudents.filter((s) => s.present);
+    },
+  },
+});
+
+export const { setBatch, updateStudent, deleteStudent, startSession } =
+  studentSlice.actions;
+
+export default studentSlice.reducer;
