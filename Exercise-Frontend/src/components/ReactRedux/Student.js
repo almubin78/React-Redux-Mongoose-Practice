@@ -5,14 +5,20 @@ import {
   updateStudent,
   deleteStudent,
   startSession,
+  addStudent,
 } from "../../store/studentSlice";
+import { useState } from "react";
 
 const Student = () => {
-  const dispatch = useDispatch();
-  const { batch, batchStudents,sessionStudents } = useSelector((state) => state.students);
- 
+  const [name, setName] = useState("");
+  const [imgLink, setImgLink] = useState("");
 
-  console.log('ss',sessionStudents); // ONLY present students
+  const dispatch = useDispatch();
+  const { batch, batchStudents, sessionStudents } = useSelector(
+    (state) => state.students
+  );
+
+  console.log("ss", sessionStudents); // ONLY present students
 
   return (
     <div className="p-4 space-y-4">
@@ -78,6 +84,27 @@ const Student = () => {
       >
         Start Session
       </button>
+      {/* Add Student Form */}
+      <div className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Student name"
+          className="border p-2 rounded"
+        />
+
+        <button
+          onClick={() => {
+            if (!name.trim()) return;
+            dispatch(addStudent({ name, imgLink }));
+            setName("");
+            setImgLink("");
+          }}
+          className="px-3 py-2 bg-green-600 text-white rounded"
+        >
+          Add
+        </button>
+      </div>
     </div>
   );
 };

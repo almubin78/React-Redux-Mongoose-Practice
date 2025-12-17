@@ -17,6 +17,20 @@ const studentSlice = createSlice({
       state.batch = action.payload;
       state.batchStudents = makePresent(studentsData[action.payload] || []);
     },
+    // ADD STUDENT
+    addStudent(state, action) {
+      const nextId =
+        state.batchStudents.length > 0
+          ? Math.max(...state.batchStudents.map((s) => s.id)) + 1
+          : 1;
+
+      state.batchStudents.push({
+        id: nextId,
+        name: action.payload.name,
+        imgLink: action.payload.imgLink || "",
+        present: true,
+      });
+    },
 
     // UPDATE (toggle / edit)
     updateStudent(state, action) {
@@ -40,7 +54,12 @@ const studentSlice = createSlice({
   },
 });
 
-export const { setBatch, updateStudent, deleteStudent, startSession } =
-  studentSlice.actions;
+export const {
+  setBatch,
+  updateStudent,
+  deleteStudent,
+  startSession,
+  addStudent,
+} = studentSlice.actions;
 
 export default studentSlice.reducer;
