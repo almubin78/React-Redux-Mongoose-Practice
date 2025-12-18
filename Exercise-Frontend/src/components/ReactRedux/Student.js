@@ -6,6 +6,7 @@ import {
   deleteStudent,
   startSession,
   addStudent,
+  setSessionTime
 } from "../../store/studentSlice";
 import { useState } from "react";
 
@@ -14,12 +15,15 @@ const Student = () => {
   const [imgLink, setImgLink] = useState("");
 
   const dispatch = useDispatch();
-  const { batch, batchStudents, sessionStudents } = useSelector(
+  const { batch, batchStudents, sessionStudents,sessionTime  } = useSelector(
     (state) => state.students
   );
 
-  console.log("ss", sessionStudents); // ONLY present students
-
+  // console.log("ss", sessionStudents,time); // ONLY present students
+  const studentForTimer = sessionStudents.map((s)=>{
+    return {...s,time:sessionTime}
+  })
+  console.log(studentForTimer,'student with time');
   return (
     <div className="p-4 space-y-4">
       {/* Batch Select */}
@@ -32,6 +36,14 @@ const Student = () => {
         <option value="Eight">Class Eight</option>
         <option value="classTenComplete">Class Ten</option>
       </select>
+      <select
+        value={sessionTime}
+        onChange={(e) => dispatch(setSessionTime(e.target.value))}
+        className="border p-2 rounded"
+      >
+        <option value='5'>5 s</option>
+        <option value="60">1 min</option>
+      </select>
 
       {/* Student Cards */}
       <div className="grid md:grid-cols-3 gap-4">
@@ -41,7 +53,7 @@ const Student = () => {
             className="border rounded p-3 flex gap-3 items-center"
           >
             <img
-              src={s.imgLink || "https://via.placeholder.com/50"}
+              src={s?.imgLink || "https://via.placeholder.com/50"}
               alt={s.name}
               className="w-12 h-12 rounded-full object-cover"
             />

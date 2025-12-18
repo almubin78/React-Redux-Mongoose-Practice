@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDatumForComponents } from '../hooks/useDatumForComponents';
-import SelectBatchAndTime from './SettingPages/SettingBatchAndTimer/SelectBatchAndTime';
+// import SelectBatchAndTime from './SettingPages/SettingBatchAndTimer/SelectBatchAndTime';
 import Student from './ReactRedux/Student';
 
 const RootPage = () => {
@@ -15,11 +15,11 @@ const RootPage = () => {
     return (
         <div>
             this is root page
-            <div>
+            {/* <div>
                 <SelectBatchAndTime
                     setBatch={setBatch}
                 />
-            </div>
+            </div> */}
             <p className='text-2xl uppercase text- bg-yellow-300'>this is react redux practice</p>
             <Student/>
         </div>

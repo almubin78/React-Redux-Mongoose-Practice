@@ -9,6 +9,7 @@ const studentSlice = createSlice({
     batch: "ssc26",
     batchStudents: makePresent(studentsData.ssc26),
     sessionStudents: [],
+    sessionTime: 5, // seconds (default)
   },
 
   reducers: {
@@ -16,6 +17,11 @@ const studentSlice = createSlice({
     setBatch(state, action) {
       state.batch = action.payload;
       state.batchStudents = makePresent(studentsData[action.payload] || []);
+      state.time = 5;
+    },
+    // SET SESSION TIME
+    setSessionTime(state, action) {
+      state.sessionTime = Number(action.payload);
     },
     // ADD STUDENT
     addStudent(state, action) {
@@ -60,6 +66,7 @@ export const {
   deleteStudent,
   startSession,
   addStudent,
+  setSessionTime,
 } = studentSlice.actions;
 
 export default studentSlice.reducer;
