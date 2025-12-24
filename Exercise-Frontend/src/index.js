@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import "react-day-picker/dist/style.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import { storeForToolkit } from "./store/storeWithToolkit";
 // import AuthProvider from './contexts/AuthProvider';
 // import {QueryClient,QueryClientProvider} from '@tanstack/react-query'
 
@@ -20,7 +21,7 @@ root.render(
         
       </AuthProvider>
     </QueryClientProvider> */}
-    <Provider store={store}>
+    <Provider store={storeForToolkit}>
       <App />
     </Provider>
   </React.StrictMode>
