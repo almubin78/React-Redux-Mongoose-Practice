@@ -8,9 +8,12 @@ const studentRouter = require('./src/routes/studentRoutes');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/students', studentRouter);
-
+app.use('/api', studentRouter);
+app.get('/',(req,res)=>{
+  res.send('This is homepage')
+})
 // Connect to MongoDB
+// console.log(process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/studentDB')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));

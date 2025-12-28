@@ -21,6 +21,7 @@ const StudentsWithToolkit = () => {
   const { batch, sessionTime, sessionStudents } = useSelector(
     (state) => state.students
   );
+  console.log(setBatch(batch));
   
   // RTK Query hooks
   const { 
@@ -52,6 +53,7 @@ const StudentsWithToolkit = () => {
 
   // Handle delete student with API
   const handleDelete = async (studentId) => {
+    console.log(studentId);
     try {
       await deleteStudentMutation(studentId).unwrap();
       // Optional: refetch students to get latest data

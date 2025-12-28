@@ -2,11 +2,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const apiSlice = createApi({
+  // baseQuery: fetchBaseQuery({ baseUrl: 'mongodb+srv://almubin78:StudentCollection@studentinformationsclus.2d981.mongodb.net/students' }),
+  // baseQuery: fetchBaseQuery({ baseUrl: 'mongodb+srv://almubin78:StudentCollection@studentinformationsclus.2d981.mongodb.net/api/students' }),
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:5000/api' }),
   tagTypes: ['Student'],
   endpoints: (builder) => ({
     getStudents: builder.query({
-      query: (batch) => `/students${batch ? `?batch=${batch}` : ''}`,
+      query: (batch) => `/students`,
+      // query: (batch) => `/students${batch ? `?batch=${batch}` : ''}`,
       providesTags: ['Student']
     }),
     addStudent: builder.mutation({

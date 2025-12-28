@@ -4,11 +4,14 @@ const studentsModel = require('../models/students.model');
 const studentRouter = express.Router();
 
 // GET all students (optionally by batch)
-studentRouter.get('/', async (req, res) => {
+studentRouter.get('/students', async (req, res) => {
   try {
-    const { batch } = req.query;
-    const filter = batch ? { batch } : {};
-    const students = await studentsModel.find(filter);
+    // const { batch } = req.query;
+    // console.log(batch);
+    // const filter = batch ? { batch } : {};
+    console.log(filter);
+    const students = await studentsModel.find({});
+    // const students = await studentsModel.find(filter);
     res.json(students);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -18,7 +21,7 @@ studentRouter.get('/', async (req, res) => {
 // POST a new student
 studentRouter.post('/', async (req, res) => {
   try {
-    const student = new Student(req.body);
+    const student = new studentsModel(req.body);
     await student.save();
     res.status(201).json(student);
   } catch (err) {
@@ -29,7 +32,7 @@ studentRouter.post('/', async (req, res) => {
 // PATCH update a student (e.g., toggle present)
 studentRouter.patch('/:id', async (req, res) => {
   try {
-    const student = await Student.findByIdAndUpdate(
+    const student = await studentsModel.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
