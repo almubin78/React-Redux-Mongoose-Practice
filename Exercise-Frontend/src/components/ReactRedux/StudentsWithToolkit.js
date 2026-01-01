@@ -18,10 +18,7 @@ const StudentsWithToolkit = () => {
   const [imgLink, setImgLink] = useState("");
 
   // Get batch from Redux store
-  const { batch, sessionTime, sessionStudents } = useSelector(
-    (state) => state.students
-  );
-  console.log(setBatch(batch));
+  const { batch, sessionTime } = useSelector((state) => state.students);
   
   // RTK Query hooks
   const { 
@@ -31,21 +28,23 @@ const StudentsWithToolkit = () => {
     refetch 
   } = useGetStudentsQuery(batch);
   
-  const [addStudentMutation] = useAddStudentMutation();
-  const [updateStudentMutation] = useUpdateStudentMutation();
-  const [deleteStudentMutation] = useDeleteStudentMutation();
+  const [addStudent, { isLoading: isAdding }] = useAddStudentMutation();
+  const [updateStudent] = useUpdateStudentMutation();
+  const [deleteStudent] = useDeleteStudentMutation();
 
   const dispatch = useDispatch();
+
+  // Derived state - compute once
+  const presentStudents = batchStudents.filter(s => s.present);
+  const absentStudents = batchStudents.filter(s => !s.present);
 
   // Handle student toggle with API
   const handleToggle = async (student) => {
     try {
-      await updateStudentMutation({
+      await updateStudent({
         id: student._id || student.id,
         data: { present: !student.present }
-      }).unwrap();
-      // Optional: refetch students to get latest data
-      // refetch();
+      });
     } catch (error) {
       console.error("Failed to update student:", error);
     }
@@ -53,11 +52,12 @@ const StudentsWithToolkit = () => {
 
   // Handle delete student with API
   const handleDelete = async (studentId) => {
-    console.log(studentId);
+    if (!window.confirm("Are you sure you want to delete this student?")) {
+      return;
+    }
+    
     try {
-      await deleteStudentMutation(studentId).unwrap();
-      // Optional: refetch students to get latest data
-      // refetch();
+      await deleteStudent(studentId);
     } catch (error) {
       console.error("Failed to delete student:", error);
     }
@@ -68,21 +68,25 @@ const StudentsWithToolkit = () => {
     if (!name.trim()) return;
     
     try {
-      await addStudentMutation({
+      await addStudent({
         name: name.trim(),
         imgLink: imgLink.trim(),
         batch: batch,
         present: true
-      }).unwrap();
+      });
       
       // Clear form
       setName("");
       setImgLink("");
-      
-      // Optional: refetch students
-      // refetch();
     } catch (error) {
       console.error("Failed to add student:", error);
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && name.trim()) {
+      handleAddStudent();
     }
   };
 
@@ -117,7 +121,7 @@ const StudentsWithToolkit = () => {
       {/* Header with controls */}
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <div className="flex flex-wrap gap-4 items-center">
-          {/* Batch Select - DaisyUI version */}
+          {/* Batch Select */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Select Batch</span>
@@ -133,7 +137,7 @@ const StudentsWithToolkit = () => {
             </select>
           </div>
 
-          {/* Session Time Select - DaisyUI version */}
+          {/* Session Time Select */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Session Time</span>
@@ -150,19 +154,19 @@ const StudentsWithToolkit = () => {
           </div>
         </div>
 
-        {/* Start Session Button - DaisyUI version */}
+        {/* Start Session Button */}
         <button
           onClick={() => dispatch(startSession())}
           className="btn btn-success"
-          disabled={!batchStudents.filter(s => s.present).length}
+          disabled={!presentStudents.length}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
           </svg>
           Start Session
-          {batchStudents.filter(s => s.present).length > 0 && (
+          {presentStudents.length > 0 && (
             <span className="badge badge-neutral ml-2">
-              {batchStudents.filter(s => s.present).length} present
+              {presentStudents.length} present
             </span>
           )}
         </button>
@@ -176,15 +180,11 @@ const StudentsWithToolkit = () => {
         </div>
         <div className="stat">
           <div className="stat-title">Present</div>
-          <div className="stat-value text-success">
-            {batchStudents.filter(s => s.present).length}
-          </div>
+          <div className="stat-value text-success">{presentStudents.length}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Absent</div>
-          <div className="stat-value text-error">
-            {batchStudents.filter(s => !s.present).length}
-          </div>
+          <div className="stat-value text-error">{absentStudents.length}</div>
         </div>
       </div>
 
@@ -201,7 +201,7 @@ const StudentsWithToolkit = () => {
                 <div className="avatar">
                   <div className="w-16 h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100">
                     <img
-                      src={student.imgLink || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + student.name}
+                      src={student.imgLink || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`}
                       alt={student.name}
                       className="rounded-full"
                     />
@@ -240,7 +240,7 @@ const StudentsWithToolkit = () => {
         ))}
       </div>
 
-      {/* Add Student Form - DaisyUI version */}
+      {/* Add Student Form */}
       <div className="card bg-base-200">
         <div className="card-body">
           <h2 className="card-title">Add New Student</h2>
@@ -255,7 +255,7 @@ const StudentsWithToolkit = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter student name"
                 className="input input-bordered"
-                onKeyPress={(e) => e.key === 'Enter' && handleAddStudent()}
+                onKeyPress={handleKeyPress}
               />
             </div>
             <div className="form-control flex-1">
@@ -268,7 +268,7 @@ const StudentsWithToolkit = () => {
                 onChange={(e) => setImgLink(e.target.value)}
                 placeholder="https://example.com/photo.jpg"
                 className="input input-bordered"
-                onKeyPress={(e) => e.key === 'Enter' && handleAddStudent()}
+                onKeyPress={handleKeyPress}
               />
             </div>
             <div className="form-control">
@@ -278,12 +278,16 @@ const StudentsWithToolkit = () => {
               <button
                 onClick={handleAddStudent}
                 className="btn btn-primary"
-                disabled={!name.trim()}
+                disabled={!name.trim() || isAdding}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Add Student
+                {isAdding ? (
+                  <span className="loading loading-spinner"></span>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                )}
+                {isAdding ? "Adding..." : "Add Student"}
               </button>
             </div>
           </div>
