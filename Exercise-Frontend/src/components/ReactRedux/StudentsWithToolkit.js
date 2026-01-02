@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setBatch,
-  setSessionTime,
-  startSession,
-} from "../../store/studentSlice";
-import {
   useAddStudentMutation,
   useDeleteStudentMutation,
   useGetStudentsQuery,
-  useUpdateStudentMutation
-} from "../../store/apiSliceForToolkit";
+  useUpdateStudentMutation,
+} from "../../store/toolkit/apiSliceForToolkit";
+import {
+  setBatch,
+  setSessionTime,
+  startSession,
+} from "../../store/pureReduxStore/studentSlice";
 
 const StudentsWithToolkit = () => {
   // Local form state
@@ -19,15 +19,15 @@ const StudentsWithToolkit = () => {
 
   // Get batch from Redux store
   const { batch, sessionTime } = useSelector((state) => state.students);
-  
+
   // RTK Query hooks
-  const { 
-    data: batchStudents = [], 
-    isLoading, 
-    isError, 
-    refetch 
+  const {
+    data: batchStudents = [],
+    isLoading,
+    isError,
+    refetch,
   } = useGetStudentsQuery(batch);
-  
+
   const [addStudent, { isLoading: isAdding }] = useAddStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
   const [deleteStudent] = useDeleteStudentMutation();
@@ -35,15 +35,15 @@ const StudentsWithToolkit = () => {
   const dispatch = useDispatch();
 
   // Derived state - compute once
-  const presentStudents = batchStudents.filter(s => s.present);
-  const absentStudents = batchStudents.filter(s => !s.present);
+  const presentStudents = batchStudents.filter((s) => s.present);
+  const absentStudents = batchStudents.filter((s) => !s.present);
 
   // Handle student toggle with API
   const handleToggle = async (student) => {
     try {
       await updateStudent({
         id: student._id || student.id,
-        data: { present: !student.present }
+        data: { present: !student.present },
       });
     } catch (error) {
       console.error("Failed to update student:", error);
@@ -55,7 +55,7 @@ const StudentsWithToolkit = () => {
     if (!window.confirm("Are you sure you want to delete this student?")) {
       return;
     }
-    
+
     try {
       await deleteStudent(studentId);
     } catch (error) {
@@ -66,15 +66,15 @@ const StudentsWithToolkit = () => {
   // Handle add student with API
   const handleAddStudent = async () => {
     if (!name.trim()) return;
-    
+
     try {
       await addStudent({
         name: name.trim(),
         imgLink: imgLink.trim(),
         batch: batch,
-        present: true
+        present: true,
       });
-      
+
       // Clear form
       setName("");
       setImgLink("");
@@ -85,7 +85,7 @@ const StudentsWithToolkit = () => {
 
   // Handle Enter key press
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && name.trim()) {
+    if (e.key === "Enter" && name.trim()) {
       handleAddStudent();
     }
   };
@@ -160,8 +160,17 @@ const StudentsWithToolkit = () => {
           className="btn btn-success"
           disabled={!presentStudents.length}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+              clipRule="evenodd"
+            />
           </svg>
           Start Session
           {presentStudents.length > 0 && (
@@ -180,7 +189,9 @@ const StudentsWithToolkit = () => {
         </div>
         <div className="stat">
           <div className="stat-title">Present</div>
-          <div className="stat-value text-success">{presentStudents.length}</div>
+          <div className="stat-value text-success">
+            {presentStudents.length}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Absent</div>
@@ -193,7 +204,9 @@ const StudentsWithToolkit = () => {
         {batchStudents.map((student) => (
           <div
             key={student._id || student.id}
-            className={`card card-compact ${student.present ? 'bg-base-100' : 'bg-base-200 opacity-80'} shadow hover:shadow-lg transition-shadow`}
+            className={`card card-compact ${
+              student.present ? "bg-base-100" : "bg-base-200 opacity-80"
+            } shadow hover:shadow-lg transition-shadow`}
           >
             <div className="card-body">
               <div className="flex items-center space-x-4">
@@ -201,7 +214,10 @@ const StudentsWithToolkit = () => {
                 <div className="avatar">
                   <div className="w-16 h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100">
                     <img
-                      src={student.imgLink || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`}
+                      src={
+                        student.imgLink ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`
+                      }
                       alt={student.name}
                       className="rounded-full"
                     />
@@ -212,7 +228,11 @@ const StudentsWithToolkit = () => {
                 <div className="flex-1">
                   <h3 className="card-title text-lg">{student.name}</h3>
                   <div className="flex items-center space-x-2 mt-1">
-                    <span className={`badge ${student.present ? 'badge-success' : 'badge-error'}`}>
+                    <span
+                      className={`badge ${
+                        student.present ? "badge-success" : "badge-error"
+                      }`}
+                    >
                       {student.present ? "Present" : "Absent"}
                     </span>
                     <span className="badge badge-outline">{student.batch}</span>
@@ -224,7 +244,9 @@ const StudentsWithToolkit = () => {
               <div className="card-actions justify-end mt-4">
                 <button
                   onClick={() => handleToggle(student)}
-                  className={`btn btn-sm ${student.present ? 'btn-warning' : 'btn-success'}`}
+                  className={`btn btn-sm ${
+                    student.present ? "btn-warning" : "btn-success"
+                  }`}
                 >
                   {student.present ? "Mark Absent" : "Mark Present"}
                 </button>
@@ -283,8 +305,17 @@ const StudentsWithToolkit = () => {
                 {isAdding ? (
                   <span className="loading loading-spinner"></span>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
                 {isAdding ? "Adding..." : "Add Student"}

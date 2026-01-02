@@ -1,7 +1,7 @@
 // store/store.js
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from '@reduxjs/toolkit/query';
-import studentReducer from "./studentSlice";
+import studentReducer from "../studentSlice";
 import { apiSlice } from "./apiSliceForToolkit";
 
 export const storeForToolkit = configureStore({
