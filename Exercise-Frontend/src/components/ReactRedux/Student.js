@@ -1,29 +1,30 @@
 import { useDispatch, useSelector } from "react-redux";
 
+
+import { useState } from "react";
 import {
   setBatch,
   updateStudent,
   deleteStudent,
   startSession,
   addStudent,
-  setSessionTime
-} from "../../store/studentSlice";
-import { useState } from "react";
+  setSessionTime,
+} from "../../store/pureReduxStore/studentSlice";
 
 const Student = () => {
   const [name, setName] = useState("");
   const [imgLink, setImgLink] = useState("");
 
   const dispatch = useDispatch();
-  const { batch, batchStudents, sessionStudents,sessionTime  } = useSelector(
+  const { batch, batchStudents, sessionStudents, sessionTime } = useSelector(
     (state) => state.students
   );
 
   // console.log("ss", sessionStudents,time); // ONLY present students
-  const studentForTimer = sessionStudents.map((s)=>{
-    return {...s,time:sessionTime}
-  })
-  console.log(studentForTimer,'student with time');
+  const studentForTimer = sessionStudents.map((s) => {
+    return { ...s, time: sessionTime };
+  });
+  console.log(studentForTimer, "student with time");
   return (
     <div className="p-4 space-y-4">
       {/* Batch Select */}
@@ -41,7 +42,7 @@ const Student = () => {
         onChange={(e) => dispatch(setSessionTime(e.target.value))}
         className="border p-2 rounded"
       >
-        <option value='5'>5 s</option>
+        <option value="5">5 s</option>
         <option value="60">1 min</option>
       </select>
 
